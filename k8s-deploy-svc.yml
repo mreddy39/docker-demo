@@ -1,0 +1,76 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: demo-app-deployment-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-app
+        role: rolling-update
+        version: v1
+    spec:
+      containers:
+      - name: demo-app
+        image: acr.azurecr.io/demo:latest
+        #command: ["java", "-Dspring.profiles.active=stage","-Dlogging.file=/logs/email-notifications-api-test.log","-Dserver.port=8080","-cp", "app:app/lib/*",  "com.optum.micro.api.demoApiApplication"]
+        env:
+        - name: START_DELAY
+          value: "0"
+        - name: JAVA_OPTS
+          value: "-XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dumps"
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - /pod_restart.sh
+            - "8080"
+            - "java"
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          successThreshold: 1
+          failureThreshold: 3
+          timeoutSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - /pod_restart.sh
+            - "8080"
+            - "java"
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          successThreshold: 1
+          failureThreshold: 3
+          timeoutSeconds: 10
+        resources:
+          limits:
+            memory: "2048Mi"
+            cpu: "1"
+          requests:
+            memory: "1024Mi"
+            cpu: "0.5"
+      imagePullSecrets:
+      - name: acr-secret
+      restartPolicy: Always
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+  selector:
+    app: demo-app
