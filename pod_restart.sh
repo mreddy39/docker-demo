@@ -18,7 +18,7 @@ totalthread=`ls /proc/$pid/task | wc -l`
 var=`netstat -an | grep :$1 | grep LISTEN | wc -l`
 status=`netstat -an | grep :$1 | grep LISTEN | tr -s ' ' | cut -d ' ' -f 6`
 
-if [ $usedmemper -ge 80 ] || [ $cpuusageper -ge 80 ] || [ $var -eq 0 ] || [ $totalthread -ge 70 ]
+if [ $usedmemper -ge 95 ] || [ $cpuusageper -ge 95 ] || [ $var -eq 0 ] || [ $totalthread -ge 85 ]
 then
     printf "memory usage in %%: "$usedmemper
     printf "\ncpu uasge in %%: "$cpuusageper
