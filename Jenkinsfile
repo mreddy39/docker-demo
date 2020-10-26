@@ -20,7 +20,6 @@ pipeline{
 	      	script{
                   checkout scm
 
-
             }
 	    }
           }
