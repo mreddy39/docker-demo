@@ -6,10 +6,6 @@ pipeline{
             label 'master'
         }
 
-        tools{
-            maven 'Maven'
-            jdk 'Java 1.8'
-        }
           stages{
             /*stage('env configure') {
                 steps{
