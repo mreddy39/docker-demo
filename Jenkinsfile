@@ -1,48 +1,28 @@
 
-def app
-def fortifyCredentialsId = "fortifyCredentialsId"
-pipeline{
+node {
+    def app
 
-        agent{
-            label 'docker-azcli-kubectl-slave'
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
+
+        checkout scm
+    }
+
+    stage('Build image') {
+        /* This builds the actual image; synonymous to
+         * docker build on the command line */
+
+        app = docker.build("getintodevops/hellonode")
+    }
+
+    stage('Test image') {
+        /* Ideally, we would run a test framework against our image.
+         * For this example, we're using a Volkswagen-type approach ;-) */
+
+        app.inside {
+            sh 'echo "Tests passed"'
         }
-
-        tools{
-            maven 'Maven'
-            jdk 'Java 1.8'
-        }
-          stages{
-            /*stage('env configure') {
-                steps{
-                    sh '''
-                    echo "PATH = ${PATH}"
-                    echo "MAVEN_HOME = ${MAVEN_HOME}"
-                    '''
-                }
-            }*/
-            stage('checkout'){
-              steps{
-	      	script{
-                  checkout scm
-
-
-            }
-	    }
-          }
-          stage('build'){
-            steps{
-	    	script{
-                sh "mvn clean package -DskipTests"
-
-            }
-	    }
-       }
-stage('Registring image and Docker image Build'){
-    steps{
-     	script{
-app = docker.build("demoapp")
-}
-}
+    }
 }
 
 stage('Push image to ACR with buildno tag'){
