@@ -44,7 +44,7 @@ stage('Push image to ACR with buildno tag'){
      	script{
 //You would need to first register with ACR before you can push images to your account
 
-  docker.withRegistry('https://hellodevusacr.azurecr.io', 'hellodevusacr') {
+  docker.withRegistry('https://demotestuscacr.azurecr.io', 'demotestuscacr') {
       app.push("${env.BUILD_NUMBER}")
       app.push("latest")
 
